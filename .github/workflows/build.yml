@@ -1,0 +1,42 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        tags: austinarcher/flask-app:latest
+
+    - name: Get Image Digest to Sign
+      run: |
+        IMAGE_SHA=$(docker inspect austinarcher/flask-app:latest | jq -r '.[].Id')
+        IMAGE_NAME=austinarcher/flask-app
+        SIGNING_TARGET="$IMAGE_NAME"@"$IMAGE_SHA"
+        echo ARTIFACT="$SIGNING_TARGET" >> $GITHUB_ENV
+
+    - name: Container sign
+      uses: endorlabs/github-action/sign@736c93ea52b002f2ac229aaeb273b102cbf6fe12
+      with:
+        namespace: "david-learn"
+        artifact_name: ${{ env.ARTIFACT }}
+
+    - name: Push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: austinarcher/flask-app:latest

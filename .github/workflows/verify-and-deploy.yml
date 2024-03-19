@@ -1,9 +1,6 @@
 name: Terraform Deploy
 
-on:
-  push:
-    branches:
-      - main # or any branch you want to trigger the deployment
+on: workflow_dispatch
 
 jobs:
   deploy:

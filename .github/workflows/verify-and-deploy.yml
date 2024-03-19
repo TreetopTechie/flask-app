@@ -1,0 +1,53 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main # or any branch you want to trigger the deployment
+
+jobs:
+  deploy:
+    name: Deploy with Terraform
+    runs-on: ubuntu-latest
+    permissions:
+        id-token: write
+        contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Get Docker Image Digest from Docker Registry API
+      id: get-digest
+      run: |
+        IMAGE_NAME="austinarcher/flask-app"
+        TAG="latest"
+          
+        TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:$IMAGE_NAME:pull" | jq -r .token)
+        DIGEST=$(curl -s -H "Accept: application/vnd.docker.distribution.manifest.v2+json" -H "Authorization: Bearer $TOKEN" "https://registry-1.docker.io/v2/$IMAGE_NAME/manifests/$TAG" | jq -r '.config.digest')
+          
+        echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+        echo "IMAGE_NAME_WITH_DIGEST=$IMAGE_NAME@$DIGEST" >> $GITHUB_ENV
+
+    - name: Validate Docker Image
+      uses: endorlabs/github-action/verify@736c93ea52b002f2ac229aaeb273b102cbf6fe12
+      with:
+        namespace: "david-learn"
+        artifact_name: ${{ env.IMAGE_NAME_WITH_DIGEST }}
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0 # Specify the version of Terraform you want to use
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve

@@ -37,6 +37,7 @@ jobs:
       with:
         namespace: "david-learn"
         artifact_name: ${{ env.IMAGE_NAME_WITH_DIGEST }}
+        certificate_oidc_issuer: "https://token.actions.githubusercontent.com"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1

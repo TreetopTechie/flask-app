@@ -33,7 +33,7 @@ jobs:
         echo ARTIFACT="$SIGNING_TARGET" >> $GITHUB_ENV
 
     - name: Container sign
-      uses: endorlabs/github-action/sign@736c93ea52b002f2ac229aaeb273b102cbf6fe12
+      uses: endorlabs/github-action/sign@v1.1.2
       with:
         namespace: "david-learn"
         artifact_name: ${{ env.ARTIFACT }}

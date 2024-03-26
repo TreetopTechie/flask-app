@@ -33,7 +33,7 @@ jobs:
         echo "IMAGE_NAME_WITH_DIGEST=$IMAGE_NAME@$DIGEST" >> $GITHUB_ENV
 
     - name: Validate Docker Image
-      uses: endorlabs/github-action/verify@736c93ea52b002f2ac229aaeb273b102cbf6fe12
+      uses: endorlabs/github-action/verify@aa5139fcbfa6faa120afc511f0678f81485e83bc
       with:
         namespace: "david-learn"
         artifact_name: ${{ env.IMAGE_NAME_WITH_DIGEST }}

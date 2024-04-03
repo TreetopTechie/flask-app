@@ -20,14 +20,21 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build Docker image
+    - name: Generate Version
+      id: version
+      run: |
+        VERSION=$(date +%Y%m%d)-$(git rev-parse --short HEAD)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "::set-output name=version::$VERSION"
+
+    - name: Build and Push Docker image
       uses: docker/build-push-action@v2
       with:
-        tags: austinarcher/flask-app:latest
+        tags: austinarcher/flask-app:${{ steps.version.outputs.version }}
 
     - name: Get Image Digest to Sign
       run: |
-        IMAGE_SHA=$(docker inspect austinarcher/flask-app:latest | jq -r '.[].Id')
+        IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].Id')
         IMAGE_NAME=austinarcher/flask-app
         SIGNING_TARGET="$IMAGE_NAME"@"$IMAGE_SHA"
         echo ARTIFACT="$SIGNING_TARGET" >> $GITHUB_ENV

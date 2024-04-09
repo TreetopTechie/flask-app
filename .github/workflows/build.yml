@@ -39,7 +39,6 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        push: true
         platforms: linux/arm64
         tags: austinarcher/flask-app:${{ steps.version.outputs.version }}
 
@@ -49,7 +48,7 @@ jobs:
 
     - name: Get Image Digest to Sign
       run: |
-        IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].RepoDigests.[0]')"
+        IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].RepoDigests[0]')
         echo ARTIFACT="$IMAGE_SHA" >> $GITHUB_ENV
 
     - name: Container sign
@@ -57,9 +56,3 @@ jobs:
       with:
         namespace: "david-learn"
         artifact_name: ${{ env.ARTIFACT }}
-
-    - name: Push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: austinarcher/flask-app:latest

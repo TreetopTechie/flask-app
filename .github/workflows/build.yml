@@ -38,6 +38,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
+        push: true
         file: ./Dockerfile
         platforms: linux/arm64
         tags: austinarcher/flask-app:${{ steps.version.outputs.version }}

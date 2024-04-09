@@ -49,7 +49,7 @@ jobs:
 
     - name: Get Image Digest to Sign
       run: |
-        IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].RepoDigests[0]')"
+        IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].RepoDigests.[0]')"
         echo ARTIFACT="$IMAGE_SHA" >> $GITHUB_ENV
 
     - name: Container sign

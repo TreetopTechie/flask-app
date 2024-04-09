@@ -2,7 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, add-multi-arch ]
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -27,10 +28,24 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "::set-output name=version::$VERSION"
 
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
     - name: Build and Push Docker image
       uses: docker/build-push-action@v2
       with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        platforms: linux/arm64
         tags: austinarcher/flask-app:${{ steps.version.outputs.version }}
+
+    # Only needed if using buildx
+    - name: Pull Docker Image
+      run: docker pull --platform linux/arm64 austinarcher/flask-app:${{ steps.version.outputs.version }}
 
     - name: Get Image Digest to Sign
       run: |

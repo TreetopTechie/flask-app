@@ -56,6 +56,7 @@ jobs:
         scan_dependencies: false
         scan_container: true
         scan_summary_output_type: "table"
+        pr: false
         image: austinarcher/flask-app:${{ steps.version.outputs.version }}
 
     - name: Get Image Digest to Sign

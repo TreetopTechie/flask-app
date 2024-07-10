@@ -47,13 +47,24 @@ jobs:
     - name: Pull Docker Image
       run: docker pull --platform linux/arm64 austinarcher/flask-app:${{ steps.version.outputs.version }}
 
+    - name: Endor Labs Scan
+      # You may pin to the exact commit or the version.
+      uses: endorlabs/github-action@a8ac7b44747fcbe98d0e80ab2d4e91f7ab9028fa
+      with:
+        namespace: 'david-learn'
+        scan_secrets: false
+        scan_dependencies: false
+        scan_container: true
+        pr: false
+        scan_summary_output_type: "table"
+
     - name: Get Image Digest to Sign
       run: |
         IMAGE_SHA=$(docker inspect austinarcher/flask-app:${{ steps.version.outputs.version }} | jq -r '.[].RepoDigests[0]')
         echo ARTIFACT="$IMAGE_SHA" >> $GITHUB_ENV
 
     - name: Container sign
-      uses: endorlabs/github-action/sign@aa5139fcbfa6faa120afc511f0678f81485e83bc
+      uses: endorlabs/github-action/sign@a8ac7b44747fcbe98d0e80ab2d4e91f7ab9028fa
       with:
         namespace: "david-learn"
         artifact_name: ${{ env.ARTIFACT }}
